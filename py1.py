@@ -7,7 +7,7 @@ DATA_FILE = "groups.json"
 
 app = Flask(__name__)
 
-# Load/save data
+#SAVE DATA
 def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
@@ -26,14 +26,14 @@ def sort_students(groups):
         third_letter = program[2] if len(program) > 2 else ' '
         return (third_letter, g['program'], order.get(g['year'], 999))
 
-    # Sort students inside each group
+    #SORT STUDENTS IN EACH GROUP
     for g in groups:
         g['students'] = sorted(g['students'], key=str.lower)
 
-    # Sort groups
+    #SORT GROUPS
     return sorted(groups, key=group_key)
 
-# Routes
+#ROUTES
 @app.route('/')
 def index():
     return render_template('html1.html')
@@ -47,7 +47,7 @@ def save_group():
     year = data['year']
     new_students = data['students']
 
-    # Check if group exists
+    #CHECK IF GROUP EXISTS
     group_found = False
     for group in groups:
         if group['program'] == program and group['year'] == year:
@@ -61,7 +61,7 @@ def save_group():
     if not group_found:
         groups.append({'program': program, 'year': year, 'students': new_students})
 
-    # Sort students in each group
+    #SORT STUDENTS 
     for group in groups:
         group['students'] = sorted(group['students'], key=str.lower)
 
@@ -71,7 +71,7 @@ def save_group():
 @app.route('/get_groups', methods=['GET'])
 def get_groups():
     groups = load_data()
-    sorted_groups = sort_students(groups)  # now works!
+    sorted_groups = sort_students(groups)
     return jsonify({'groups': sorted_groups})
 
 @app.route('/delete_group', methods=['POST'])
@@ -82,9 +82,9 @@ def delete_group():
 
     groups = load_data()
     
-    if year:  # delete specific year
+    if year: #DELETE SPECIFIC YEAR
         groups = [g for g in groups if not (g['program'] == program and g['year'] == year)]
-    else:  # delete all groups of that program
+    else: 
         groups = [g for g in groups if g['program'] != program]
 
     save_data(groups)

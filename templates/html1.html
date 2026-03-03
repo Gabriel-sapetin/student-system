@@ -14,7 +14,6 @@
         </header>
 
         <main class="main-content">
-            <!-- Student Entry Section -->
             <section id="studentSection" class="active">
                 <div class="input-group">
                     <input type="text" id="studentName" placeholder="Enter student name..." maxlength="50">
@@ -27,7 +26,6 @@
                 </div>
             </section>
 
-            <!-- Program Entry Section -->
             <section id="programSection" class="hidden">
                 <div class="input-group">
                     <input type="text" id="programName" placeholder="Enter program (e.g., BSCS)..." maxlength="10">
@@ -35,7 +33,6 @@
                 </div>
             </section>
 
-            <!-- Year Level Section -->
             <section id="yearSection" class="hidden">
                 <div class="input-group">
                     <select id="yearLevel">
@@ -50,13 +47,11 @@
                 </div>
             </section>
 
-            <!-- Results Section -->
             <section id="resultsSection" class="hidden">
                 <button id="backToMainBtn">🔄 Add Another Group</button>
             </section>
         </main>
 
-<!-- Results Display -->
 <section id="resultsDisplay" class="results-container hidden">
     <h2>📋 Student Groups</h2>
     <p id="statsText"></p>
@@ -73,13 +68,11 @@
     <div id="groupsList"></div>
 </section>
 
-    <!-- Backend Communication -->
     <script>
         let currentStudents = [];
         let tempProgram = '';
         let tempYear = '';
 
-        // Student input handling
         document.getElementById('studentName').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') addStudent();
         });
@@ -128,7 +121,7 @@
         function submitYear() {
             const year = document.getElementById('yearLevel').value;
             if (year && currentStudents.length > 0) {
-                // Send to backend
+        
                 fetch('/save_group', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -140,7 +133,7 @@
                 }).then(() => {
             currentStudents = [];
             resetToStudents();
-            loadResults();   // Reload results below
+            loadResults();   
                 });
             }
         }
@@ -234,8 +227,8 @@ function loadResults() {
             document.getElementById("statsText").innerText =
                 `Total Programs: ${Object.keys(groupedByProgram).length} | Total Students: ${totalStudents}`;
 
-            // Build HTML
-            // Build PROGRAM BOXES ONLY
+            
+            
 container.innerHTML = Object.keys(groupedByProgram).map(program => {
 
     const yearLevels = groupedByProgram[program].length;
