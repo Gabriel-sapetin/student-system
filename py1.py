@@ -77,13 +77,21 @@ def get_groups():
 @app.route('/delete_group', methods=['POST'])
 def delete_group():
     data = request.json
-    program = data['program']
-    year = data['year']
+    program = data.get('program')
+    year = data.get('year', '')
 
     groups = load_data()
-    groups = [g for g in groups if not (g['program'] == program and g['year'] == year)]
+    
+    if year:  # delete specific year
+        groups = [g for g in groups if not (g['program'] == program and g['year'] == year)]
+    else:  # delete all groups of that program
+        groups = [g for g in groups if g['program'] != program]
+
     save_data(groups)
     return jsonify({'status': 'deleted'})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+if __name__ == "__main__":
+    app.run()

@@ -171,7 +171,7 @@
         function deleteGroup(program, year, buttonElement) {
     if (!confirm(`Delete ${program} - ${year}?`)) return;
 
-    const card = buttonElement.closest('.group-card');
+    const card = buttonElement.closest('.program-card-modern');
     card.style.opacity = '0';
     card.style.transform = 'scale(0.9)';
 
@@ -243,21 +243,21 @@ container.innerHTML = Object.keys(groupedByProgram).map(program => {
         .reduce((sum, g) => sum + g.students.length, 0);
 
     return `
-        <div class="program-card-modern" onclick="openProgram('${program}')">
-            
-            <div class="program-card-left">
-                <h2>${program}</h2>
-                <p>${yearLevels} Year Levels</p>
-            </div>
-
-            <div class="program-card-right">
-                <div class="badge students-badge">
-                    ${totalStudents} Students
-                </div>
-            </div>
-
+    <div class="program-card-modern">
+        <div class="program-card-left" onclick="openProgram('${program}')">
+            <h2>${program}</h2>
+            <p>${yearLevels} Year Levels</p>
         </div>
-    `;
+
+        <div class="program-card-right">
+            <div class="badge students-badge">
+                ${totalStudents} Students
+            </div>
+            <button class="delete-btn" onclick="deleteGroup('${program}', '', this)">×</button>
+        </div>
+    </div>
+`;
+
 }).join('');
 
             document.getElementById('resultsDisplay').classList.remove('hidden');
