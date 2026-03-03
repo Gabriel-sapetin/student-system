@@ -130,7 +130,7 @@ button:disabled {
 /* Make programs horizontal */
 #groupsList {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));  /* Ensure fluid layout */
     gap: 30px;
 }
 
@@ -171,11 +171,11 @@ button:disabled {
     .input-group {
         flex-direction: column;
     }
-    
+
     input, select {
         min-width: 100%;
     }
-    
+
     header h1 {
         font-size: 2em;
     }
@@ -201,49 +201,15 @@ button:disabled {
     padding-bottom: 8px;
 }
 
-.program-title {
-    margin-bottom: 20px;
-    font-size: 1.8em;
-    color: #333;
-    border-bottom: 3px solid #667eea;
-    padding-bottom: 10px;
-}
-
-/* Horizontal layout */
 .program-groups {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
 }
 
-/* Make group cards smaller */
 .program-groups .group-card {
     flex: 1 1 180px;
     min-width: 180px;
-}
-
-@media (max-width: 1200px) {
-    #groupsList {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-@media (max-width: 992px) {
-    #groupsList {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    #groupsList {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 500px) {
-    #groupsList {
-        grid-template-columns: 1fr;
-    }
 }
 
 .count-badge {
@@ -265,24 +231,18 @@ button:disabled {
     position: absolute;
     top: 12px;
     right: 12px;
-
     width: 30px;
     height: 30px;
-
     border-radius: 8px;
     border: none;
-
     background: rgba(255,255,255,0.2);
     backdrop-filter: blur(10px);
-
     color: white;
     font-size: 15px;
     font-weight: bold;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     cursor: pointer;
     transition: all 0.25s ease;
 }
