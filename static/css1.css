@@ -1,0 +1,564 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    width: 95%;
+    max-width: 1400px;  /* wider */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.main-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+section {
+    transition: all 0.3s ease;
+}
+
+section.hidden {
+    display: none !important;
+}
+
+section.active {
+    display: block;
+}
+
+.input-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+input, select {
+    flex: 1;
+    padding: 15px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    font-size: 16px;
+    min-width: 250px;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.students-list {
+    background: #f8f9ff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px dashed #e1e5e9;
+}
+
+.students-list h3 {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+#studentsList {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#studentsList li {
+    padding: 8px 12px;
+    background: white;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.results-container {
+    padding: 20px;
+}
+
+/* Make programs horizontal */
+#groupsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.results-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.group-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.group-card h3 {
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.group-card ul {
+    list-style: none;
+}
+
+.group-card li {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.2);
+    margin-bottom: 8px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+    }
+    
+    input, select {
+        min-width: 100%;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+}
+
+/* Program container (white box per program) */
+.program-container {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+.program-title {
+    margin-bottom: 20px;
+    font-size: 1.6em;
+    color: #333;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 8px;
+}
+
+.program-title {
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    color: #333;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 10px;
+}
+
+/* Horizontal layout */
+.program-groups {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Make group cards smaller */
+.program-groups .group-card {
+    flex: 1 1 180px;
+    min-width: 180px;
+}
+
+@media (max-width: 1200px) {
+    #groupsList {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    #groupsList {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    #groupsList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    #groupsList {
+        grid-template-columns: 1fr;
+    }
+}
+
+.count-badge {
+    background: white;
+    color: #f5576c;
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-left: 8px;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.group-card {
+    position: relative;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 8px;
+    border: none;
+
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
+}
+
+.delete-btn:hover {
+    background: #ff4d4d;
+    transform: scale(1.15);
+    box-shadow: 0 6px 18px rgba(255,77,77,0.5);
+}
+
+.group-card {
+    transition: all 0.3s ease;
+}
+
+.group-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+#statsText {
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 600;
+    color: white;
+}
+
+.results-controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px; /* pushes group boxes down */
+}
+
+/* PROGRAM BOXES */
+.program-box {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    transition: all 0.3s ease;
+}
+
+.program-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+}
+
+.program-box h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.program-box p {
+    color: #777;
+}
+
+/* DRILL TITLE */
+.drill-title {
+    text-align: center;
+    color: white;
+    margin: 20px 0;
+}
+
+/* HORIZONTAL 4 YEAR LAYOUT */
+.year-horizontal {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/* YEAR COLUMN */
+.year-column {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.year-column h3 {
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+.year-column ul {
+    list-style: none;
+}
+
+.year-column li {
+    padding: 8px 12px;
+    background: #f4f6ff;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+/* Empty state */
+.empty {
+    opacity: 0.5;
+    font-style: italic;
+}
+
+/* Back button */
+.back-btn {
+    margin-bottom: 15px;
+}
+
+/* ===============================
+   PROGRAM VIEW (MODERN DESIGN)
+=================================*/
+
+.program-view {
+    margin-top: 40px;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.program-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.program-header h2 {
+    font-size: 28px;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.back-btn {
+    position: absolute;
+    left: 0;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.35);
+}
+
+.year-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+}
+
+.year-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border-radius: 18px;
+    padding: 25px;
+    color: white;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+}
+
+.year-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.year-card h3 {
+    margin-bottom: 15px;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+    padding-bottom: 8px;
+}
+
+.year-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.year-card li {
+    background: rgba(255,255,255,0.2);
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.year-card li.empty {
+    background: rgba(255,255,255,0.1);
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===============================
+   MODERN PROGRAM CARD DESIGN
+=================================*/
+
+.program-card-modern {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(18px);
+    border-radius: 20px;
+    padding: 30px 35px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.35s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.program-card-modern:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+    background: rgba(255,255,255,0.25);
+}
+
+.program-card-left h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 1px;
+}
+
+.program-card-left p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+}
+
+.program-card-right {
+    display: flex;
+    align-items: center;
+}
+
+.badge {
+    padding: 10px 18px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.students-badge {
+    background: white;
+    color: #5a4bff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* Animation */
+.program-card-modern {
+    animation: fadeUp 0.4s ease forwards;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

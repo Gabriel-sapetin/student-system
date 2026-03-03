@@ -1,0 +1,63 @@
+[
+    {
+        "program": "BSCS",
+        "year": "2nd",
+        "students": [
+            "Bagriel",
+            "Gabriel Laag Sapetin"
+        ]
+    },
+    {
+        "program": "BSMT",
+        "year": "2nd",
+        "students": [
+            "Clouie Asilom"
+        ]
+    },
+    {
+        "program": "BSCS",
+        "year": "1st",
+        "students": [
+            "Gabriel"
+        ]
+    },
+    {
+        "program": "BSCS",
+        "year": "4th",
+        "students": [
+            "BAG"
+        ]
+    },
+    {
+        "program": "BSCE",
+        "year": "2nd",
+        "students": [
+            "CLO",
+            "GAB",
+            "GABRIEL",
+            "LOVE"
+        ]
+    },
+    {
+        "program": "BSCE",
+        "year": "1st",
+        "students": [
+            "Gabriel",
+            "GABRIEL LAAG SAPETIN"
+        ]
+    },
+    {
+        "program": "BSES",
+        "year": "1st",
+        "students": [
+            "GAB"
+        ]
+    },
+    {
+        "program": "BSAB",
+        "year": "2nd",
+        "students": [
+            "GAB"
+        ]
+    }
+]

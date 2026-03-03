@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css1.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Student Management System</h1>
+            <p>Organize students by program and year level</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Student Entry Section -->
+            <section id="studentSection" class="active">
+                <div class="input-group">
+                    <input type="text" id="studentName" placeholder="Enter student name..." maxlength="50">
+                    <button id="addStudentBtn">Add Student</button>
+                    <button id="endStudentsBtn">INPUT PROGRAM</button>
+                </div>
+                <div id="currentStudents" class="students-list">
+                    <h3>Current Students:</h3>
+                    <ul id="studentsList"></ul>
+                </div>
+            </section>
+
+            <!-- Program Entry Section -->
+            <section id="programSection" class="hidden">
+                <div class="input-group">
+                    <input type="text" id="programName" placeholder="Enter program (e.g., BSCS)..." maxlength="10">
+                    <button id="submitProgramBtn">➤ Next: Year Level</button>
+                </div>
+            </section>
+
+            <!-- Year Level Section -->
+            <section id="yearSection" class="hidden">
+                <div class="input-group">
+                    <select id="yearLevel">
+                        <option value="">Select Year Level</option>
+                        <option value="1st">1st Year</option>
+                        <option value="2nd">2nd Year</option>
+                        <option value="3rd">3rd Year</option>
+                        <option value="4th">4th Year</option>
+                    </select>
+                    <button id="submitYearBtn">✅ Save Student/s</button>
+                    <button id="backToStudentsBtn">↩️ New Students</button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="hidden">
+                <button id="backToMainBtn">🔄 Add Another Group</button>
+            </section>
+        </main>
+
+<!-- Results Display -->
+<section id="resultsDisplay" class="results-container hidden">
+    <h2>📋 Student Groups</h2>
+    <p id="statsText"></p>
+    <div class="results-controls">
+    <input type="text" id="searchInput" placeholder="Search program or year...">
+    
+    <select id="sortSelect">
+        <option value="default">Sort By</option>
+        <option value="year">Year Level</option>
+        <option value="students">Student Count</option>
+    </select>
+</div>
+
+    <div id="groupsList"></div>
+</section>
+
+    <!-- Backend Communication -->
+    <script>
+        let currentStudents = [];
+        let tempProgram = '';
+        let tempYear = '';
+
+        // Student input handling
+        document.getElementById('studentName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addStudent();
+        });
+
+        document.getElementById('addStudentBtn').addEventListener('click', addStudent);
+        document.getElementById('endStudentsBtn').addEventListener('click', endStudents);
+        document.getElementById('programName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') submitProgram();
+        });
+        document.getElementById('submitProgramBtn').addEventListener('click', submitProgram);
+        document.getElementById('yearLevel').addEventListener('change', function() {
+            document.getElementById('submitYearBtn').disabled = !this.value;
+        });
+        document.getElementById('submitYearBtn').addEventListener('click', submitYear);
+        document.getElementById('backToStudentsBtn').addEventListener('click', resetToStudents);
+        document.getElementById('backToMainBtn').addEventListener('click', resetToStudents);
+
+        function addStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            if (name && !currentStudents.includes(name)) {
+                currentStudents.push(name);
+                updateStudentsList();
+                document.getElementById('studentName').value = '';
+                document.getElementById('studentName').focus();
+            }
+        }
+
+        function endStudents() {
+            document.getElementById('programName').focus();
+            if (currentStudents.length === 0) {
+                alert('Please add at least one student first!');
+                return;
+            }
+            showSection('programSection');
+        }
+
+        function submitProgram() {
+            tempProgram = document.getElementById('programName').value.trim().toUpperCase();
+            if (tempProgram) {
+                showSection('yearSection');
+            } else {
+                alert('Please enter a program name!');
+            }
+        }
+
+        function submitYear() {
+            const year = document.getElementById('yearLevel').value;
+            if (year && currentStudents.length > 0) {
+                // Send to backend
+                fetch('/save_group', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        program: tempProgram,
+                        year: year,
+                        students: currentStudents
+                    })
+                }).then(() => {
+            currentStudents = [];
+            resetToStudents();
+            loadResults();   // Reload results below
+                });
+            }
+        }
+
+        function resetToStudents() {
+            currentStudents = [];
+            tempProgram = '';
+            document.getElementById('yearLevel').value = '';
+            document.getElementById('programName').value = '';
+            document.getElementById('studentName').value = '';
+            updateStudentsList();
+            showSection('studentSection');
+            loadResults();
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.main-content > section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.main-content > section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function updateStudentsList() {
+            const list = document.getElementById('studentsList');
+            list.innerHTML = currentStudents.map(name => `<li>${name}</li>`).join('');
+        }
+
+        function deleteGroup(program, year, buttonElement) {
+    if (!confirm(`Delete ${program} - ${year}?`)) return;
+
+    const card = buttonElement.closest('.group-card');
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.9)';
+
+    setTimeout(() => {
+        fetch('/delete_group', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ program, year })
+        }).then(() => loadResults());
+    }, 250);
+}
+
+
+        function showResults() {
+            showSection('resultsSection');
+            loadResults();
+        }
+
+document.addEventListener("DOMContentLoaded", function() {
+document.getElementById("searchInput").addEventListener("input", loadResults);
+document.getElementById("sortSelect").addEventListener("change", loadResults);
+
+});
+
+function loadResults() {
+    fetch('/get_groups')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('groupsList');
+            const searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
+            const sortValue = document.getElementById("sortSelect")?.value || "default";
+
+            if (!data.groups || data.groups.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#777;">
+                        <h3>No groups yet</h3>
+                        <p>Start by adding students above.</p>
+                    </div>
+                `;
+                document.getElementById('resultsDisplay').classList.remove('hidden');
+                return;
+            }
+
+            // Filter + Sort
+            let filteredGroups = data.groups
+                .filter(g => 
+                    g.program.toLowerCase().includes(searchValue) ||
+                    g.year.toLowerCase().includes(searchValue)
+                )
+
+            // Group by Program
+            const groupedByProgram = {};
+            filteredGroups.forEach(group => {
+                if (!groupedByProgram[group.program]) groupedByProgram[group.program] = [];
+                groupedByProgram[group.program].push(group);
+            });
+
+            // Total Counters
+            let totalStudents = filteredGroups.reduce((sum, g) => sum + g.students.length, 0);
+            document.getElementById("statsText").innerText =
+                `Total Programs: ${Object.keys(groupedByProgram).length} | Total Students: ${totalStudents}`;
+
+            // Build HTML
+            // Build PROGRAM BOXES ONLY
+container.innerHTML = Object.keys(groupedByProgram).map(program => {
+
+    const yearLevels = groupedByProgram[program].length;
+    const totalStudents = groupedByProgram[program]
+        .reduce((sum, g) => sum + g.students.length, 0);
+
+    return `
+        <div class="program-card-modern" onclick="openProgram('${program}')">
+            
+            <div class="program-card-left">
+                <h2>${program}</h2>
+                <p>${yearLevels} Year Levels</p>
+            </div>
+
+            <div class="program-card-right">
+                <div class="badge students-badge">
+                    ${totalStudents} Students
+                </div>
+            </div>
+
+        </div>
+    `;
+}).join('');
+
+            document.getElementById('resultsDisplay').classList.remove('hidden');
+        });
+}
+
+
+function openProgram(programName) {
+    fetch('/get_groups')
+        .then(res => res.json())
+        .then(data => {
+
+            const programGroups = data.groups.filter(g => g.program === programName);
+            const yearOrder = ["1st", "2nd", "3rd", "4th"];
+
+            let yearMap = {};
+            yearOrder.forEach(y => yearMap[y] = []);
+
+            programGroups.forEach(g => {
+                yearMap[g.year] = g.students;
+            });
+
+            const container = document.getElementById('groupsList');
+
+            container.innerHTML = `
+                <div class="program-view">
+
+                    <div class="program-header">
+                        <button class="back-btn" onclick="loadResults()">← Back</button>
+                        <h2>${programName}</h2>
+                    </div>
+
+                    <div class="year-grid">
+                        ${yearOrder.map(year => `
+                            <div class="year-card">
+                                <h3>${year} Year</h3>
+                                <ul>
+                                    ${yearMap[year].length > 0
+                                        ? yearMap[year].map(s => `<li>${s}</li>`).join('')
+                                        : `<li class="empty">No Students</li>`
+                                    }
+                                </ul>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                </div>
+            `;
+        });
+}
+
+// Loa results ONCE on page load
+loadResults();
+
+    </script>
+</body>
+</html>
