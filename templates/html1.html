@@ -288,11 +288,17 @@ function openProgram(programName) {
                             <div class="year-card">
                                 <h3>${year} Year</h3>
                                 <ul>
-                                    ${yearMap[year].length > 0
-                                        ? yearMap[year].map(s => `<li>${s}</li>`).join('')
-                                        : `<li class="empty">No Students</li>`
-                                    }
-                                </ul>
+                                ${yearMap[year].map(s => `
+<li class="student-item">
+    ${s}
+    <button class="student-delete"
+    onclick="removeStudent('${programName}','${year}','${s}')">
+    ×
+    </button>
+</li>
+`).join('')}
+
+</ul>
                             </div>
                         `).join('')}
                     </div>
@@ -300,6 +306,32 @@ function openProgram(programName) {
                 </div>
             `;
         });
+}
+
+function removeStudent(program, year, student) {
+
+    if (!confirm(`Remove ${student}?`)) return;
+
+    fetch('/remove_student', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            program: program,
+            year: year,
+            student: student
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.status === "removed") {
+            loadResults(); 
+            setTimeout(() => openProgram(program), 100);
+        } else {
+            alert("Student not found.");
+        }
+
+    });
 }
 
 // Loa results ONCE on page load

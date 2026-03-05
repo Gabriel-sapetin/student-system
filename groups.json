@@ -3,48 +3,30 @@
         "program": "BSCS",
         "year": "2nd",
         "students": [
-            "Bagriel",
             "Gabriel Laag Sapetin"
-        ]
-    },
-    {
-        "program": "BSMT",
-        "year": "2nd",
-        "students": [
-            "Clouie Asilom"
         ]
     },
     {
         "program": "BSCS",
         "year": "1st",
         "students": [
-            "Gabriel"
+            "Gab"
         ]
     },
     {
         "program": "BSCS",
         "year": "4th",
-        "students": [
-            "BAG"
-        ]
+        "students": []
     },
     {
         "program": "BSCE",
         "year": "2nd",
-        "students": [
-            "CLO",
-            "GAB",
-            "GABRIEL",
-            "LOVE"
-        ]
+        "students": []
     },
     {
         "program": "BSCE",
         "year": "1st",
-        "students": [
-            "Gabriel",
-            "GABRIEL LAAG SAPETIN"
-        ]
+        "students": []
     },
     {
         "program": "BSES",
@@ -56,8 +38,11 @@
     {
         "program": "BSAB",
         "year": "2nd",
-        "students": [
-            "GAB"
-        ]
+        "students": []
+    },
+    {
+        "program": "BSCE",
+        "year": "3rd",
+        "students": []
     }
 ]

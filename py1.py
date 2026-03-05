@@ -90,6 +90,29 @@ def delete_group():
     save_data(groups)
     return jsonify({'status': 'deleted'})
 
+@app.route('/remove_student', methods=['POST'])
+def remove_student():
+    data = request.json
+    program = data.get('program')
+    year = data.get('year')
+    student = data.get('student')
+
+    groups = load_data()
+    removed = False
+
+    for group in groups:
+        if group['program'] == program and group['year'] == year:
+            if student in group['students']:
+                group['students'].remove(student)
+                removed = True
+
+    save_data(groups)
+
+    if removed:
+        return jsonify({"status": "removed"})
+    else:
+        return jsonify({"status": "not_found"})
+
 import os
 
 if __name__ == '__main__':

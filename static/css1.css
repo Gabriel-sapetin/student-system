@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 5%, green 100%);
     min-height: 100vh;
     color: #333;
 }
@@ -521,4 +521,49 @@ button:disabled {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.student-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 12px;
+    background: rgba(255,255,255,0.15);
+    border-radius:8px;
+    margin-bottom:6px;
+}
+
+
+.student-delete{
+    width: 10px;
+    height: 10px;
+    min-width: 10px;   /* prevents stretching */
+    
+    border-radius: 0%;   /* perfect circle */
+    border: none;
+
+    background: #ff4d4d;
+    color: white;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.student-delete:hover{
+    background: #e60000;
+    transform: scale(1.15);
+    box-shadow: 0 6px 15px rgba(255,0,0,0.4);
+}
+
+/* Click effect */
+.student-delete:active{
+    transform: scale(0.95);
 }
