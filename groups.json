@@ -1,48 +1,72 @@
 [
     {
         "program": "BSCS",
-        "year": "2nd",
-        "students": [
-            "Gabriel Laag Sapetin"
-        ]
-    },
-    {
-        "program": "BSCS",
         "year": "1st",
         "students": [
-            "Gab"
+            "APPLE",
+            "BUKO",
+            "CARROT"
         ]
     },
     {
         "program": "BSCS",
+        "year": "2nd",
+        "students": [
+            "BAG",
+            "CAT",
+            "DRAG",
+            "EAT",
+            "GAB",
+            "GABGAB"
+        ]
+    },
+    {
+        "program": "BSMT",
+        "year": "2nd",
+        "students": [
+            "AOT",
+            "BOB"
+        ]
+    },
+    {
+        "program": "BSAB",
+        "year": "3rd",
+        "students": [
+            "BRBRBR",
+            "HIHIHI",
+            "RETER",
+            "TAQWRE"
+        ]
+    },
+    {
+        "program": "BSBS",
         "year": "4th",
-        "students": []
+        "students": [
+            "AGGAB",
+            "BAGGAB",
+            "CAGAB",
+            "GABBAG"
+        ]
     },
     {
-        "program": "BSCE",
-        "year": "2nd",
-        "students": []
-    },
-    {
-        "program": "BSCE",
-        "year": "1st",
-        "students": []
-    },
-    {
-        "program": "BSES",
-        "year": "1st",
+        "program": "BSCS",
+        "year": "3rd",
         "students": [
             "GAB"
         ]
     },
     {
-        "program": "BSAB",
-        "year": "2nd",
-        "students": []
+        "program": "BSEE",
+        "year": "4th",
+        "students": [
+            "BSEE"
+        ]
     },
     {
-        "program": "BSCE",
-        "year": "3rd",
-        "students": []
+        "program": "BSIS",
+        "year": "1st",
+        "students": [
+            "BSEB"
+        ]
     }
 ]

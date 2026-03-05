@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 import json
-import re
 import os
+import pandas as pd
 
 DATA_FILE = "groups.json"
 
 app = Flask(__name__)
 
-#SAVE DATA
+#DATA HANDLING
 def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
@@ -18,19 +18,18 @@ def save_data(data):
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
+#SORTING
 def sort_students(groups):
-    order = {'1st': 1, '2nd': 2, '3rd': 3, '4th': 4}
+    year_order = {'1st': 1, '2nd': 2, '3rd': 3, '4th': 4}
 
-    def group_key(g):
-        program = g['program'].upper()
-        third_letter = program[2] if len(program) > 2 else ' '
-        return (third_letter, g['program'], order.get(g['year'], 999))
-
-    #SORT STUDENTS IN EACH GROUP
+    #Sort students alphabetically
     for g in groups:
         g['students'] = sorted(g['students'], key=str.lower)
 
-    #SORT GROUPS
+    #Sort groups: by size desc, program name, year
+    def group_key(g):
+        return (-len(g['students']), g['program'].upper(), year_order.get(g['year'], 999))
+
     return sorted(groups, key=group_key)
 
 #ROUTES
@@ -38,6 +37,7 @@ def sort_students(groups):
 def index():
     return render_template('html1.html')
 
+#Add or update a group
 @app.route('/save_group', methods=['POST'])
 def save_group():
     data = request.json
@@ -47,7 +47,7 @@ def save_group():
     year = data['year']
     new_students = data['students']
 
-    #CHECK IF GROUP EXISTS
+    #Check if group exists
     group_found = False
     for group in groups:
         if group['program'] == program and group['year'] == year:
@@ -61,19 +61,21 @@ def save_group():
     if not group_found:
         groups.append({'program': program, 'year': year, 'students': new_students})
 
-    #SORT STUDENTS 
+    #Sort students
     for group in groups:
         group['students'] = sorted(group['students'], key=str.lower)
 
     save_data(groups)
     return jsonify({'status': 'success'})
 
+#Get all groups (sorted)
 @app.route('/get_groups', methods=['GET'])
 def get_groups():
     groups = load_data()
     sorted_groups = sort_students(groups)
     return jsonify({'groups': sorted_groups})
 
+#Delete a group
 @app.route('/delete_group', methods=['POST'])
 def delete_group():
     data = request.json
@@ -81,15 +83,15 @@ def delete_group():
     year = data.get('year', '')
 
     groups = load_data()
-    
-    if year: #DELETE SPECIFIC YEAR
+    if year:  #Delete specific year
         groups = [g for g in groups if not (g['program'] == program and g['year'] == year)]
-    else: 
+    else:
         groups = [g for g in groups if g['program'] != program]
 
     save_data(groups)
     return jsonify({'status': 'deleted'})
 
+#Remove a student
 @app.route('/remove_student', methods=['POST'])
 def remove_student():
     data = request.json
@@ -107,15 +109,48 @@ def remove_student():
                 removed = True
 
     save_data(groups)
+    return jsonify({"status": "removed" if removed else "not_found"})
 
-    if removed:
-        return jsonify({"status": "removed"})
-    else:
-        return jsonify({"status": "not_found"})
+#Edit a student
+@app.route('/edit_student', methods=['POST'])
+def edit_student():
+    data = request.json
+    program = data['program']
+    year = data['year']
+    old = data['old_name']
+    new = data['new_name']
 
-import os
+    groups = load_data()
+    for g in groups:
+        if g['program'] == program and g['year'] == year:
+            if old in g['students']:
+                g['students'].remove(old)
+                g['students'].append(new)
+
+    save_data(groups)
+    return jsonify({'status': 'updated'})
+
+#Analytics: year counts & program counts
+@app.route('/get_stats', methods=['GET'])
+def get_stats():
+    groups = load_data()
+    if not groups:
+        return jsonify({'year_counts': {}, 'program_counts': {}})
+
+    #DATAFRAME
+    df = pd.DataFrame(groups)
+    df_expanded = df.explode('students')
+
+    #Counts per year
+    year_counts = df_expanded['year'].value_counts().to_dict()
+    #Counts per program
+    program_counts = df_expanded['program'].value_counts().to_dict()
+
+    return jsonify({
+        'year_counts': year_counts,
+        'program_counts': program_counts
+    })
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000)) 
+    port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
-

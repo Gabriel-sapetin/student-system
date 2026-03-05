@@ -6,12 +6,46 @@
     <title>Student Management System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css1.css') }}">
     <link rel="icon" type="image/png" href="Screenshot-2025-05-27-172119.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("active");
+}
+</script>
 <body>
+    <!-- TOP NAVIGATION BAR -->
+<nav class="top-navbar">
+
+    <!-- LEFT SIDE (HAMBURGER MENU) -->
+    <div class="nav-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <!-- RIGHT SIDE (NAV ICONS) -->
+    <div class="nav-right">
+        <button class="nav-icon" onclick="goHome()">H</button>
+        <button class="nav-icon" onclick="showAbout()">A</button>
+        <button class="nav-icon" onclick="showContact()">C</button>
+    </div>
+
+</nav>
+
+<!-- SIDEBAR MENU -->
+<div id="sidebar" class="sidebar">
+
+    <h3>Menu</h3>
+
+    <button onclick="#">Home</button>
+    <button onclick="showAbout()">About Us</button>
+    <button onclick="showContact()">Contact</button>
+
+</div>
     <div class="container">
         <header>
             <h1>Student Management System</h1>
-            <p>Organize students by program and year level</p>
+            <p>ORDINAL APPLICATIONS</p>
         </header>
 
         <main class="main-content">
@@ -54,9 +88,30 @@
         </main>
 
 <section id="resultsDisplay" class="results-container hidden">
-    <h2>📋 Student Groups</h2>
-    <p id="statsText"></p>
-    <div class="results-controls">
+<h2 class="dashboard-title">DASHBOARD</h2>    
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3 id="totalPrograms">0</h3>
+        <p>Programs</p>
+    </div>
+
+    <div class="stat-card">
+        <h3 id="totalStudents">0</h3>
+        <p>Students</p>
+    </div>
+
+    <div class="stat-card">
+        <h3 id="totalYears">4</h3>
+        <p>Year Levels</p>
+    </div>
+</div>
+    <div class="chart-container">
+    <canvas id="yearChart"></canvas>
+    </div>
+    <div class="chart-container">
+    <canvas id="programChart"></canvas>
+    </div>
+    <div class="results-controls modern-controls">
     <input type="text" id="searchInput" placeholder="Search program or year...">
     
     <select id="sortSelect">
@@ -64,6 +119,7 @@
         <option value="year">Year Level</option>
         <option value="students">Student Count</option>
     </select>
+    <button onclick="exportCSV()">Download File</button>
 </div>
 
     <div id="groupsList"></div>
@@ -91,31 +147,86 @@
         document.getElementById('backToStudentsBtn').addEventListener('click', resetToStudents);
         document.getElementById('backToMainBtn').addEventListener('click', resetToStudents);
 
+function toggleSidebar(){
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("open");
+}
+
+function goHome(){
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function showAbout(){
+    alert("Student Management System\nCreated for organizing students by program and year.");
+}
+
+function showContact(){
+    alert("Contact:\nEmail: support@studentsystem.com");
+}
+
+        function exportCSV(){
+
+fetch('/get_groups')
+.then(res=>res.json())
+.then(data=>{
+
+let rows = [["Program","Year","Student"]];
+
+data.groups.forEach(g=>{
+    g.students.forEach(s=>{
+        rows.push([g.program,g.year,s]);
+    });
+});
+
+let csv = rows.map(r=>r.join(",")).join("\n");
+
+const blob = new Blob([csv],{type:"text/csv"});
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement("a");
+a.href = url;
+a.download = "students.csv";
+a.click();
+
+});
+
+}
         function addStudent() {
+
             const name = document.getElementById('studentName').value.trim();
+            const regex = /^[A-Za-z .'-]{2,50}$/;
+
+            if(!regex.test(name)){
+                showToast("Invalid name format.");
+                return;
+            }
+
             if (name && !currentStudents.includes(name)) {
                 currentStudents.push(name);
                 updateStudentsList();
                 document.getElementById('studentName').value = '';
                 document.getElementById('studentName').focus();
-            }
+                showToast("Student added");
         }
+    }
 
         function endStudents() {
-            document.getElementById('programName').focus();
-            if (currentStudents.length === 0) {
-                alert('Please add at least one student first!');
-                return;
-            }
-            showSection('programSection');
-        }
+
+    if (currentStudents.length === 0) {
+        showToast("Please add at least one student first!");
+        return;
+    }
+
+    document.getElementById('programName').focus();
+    showSection('programSection');
+}
 
         function submitProgram() {
             tempProgram = document.getElementById('programName').value.trim().toUpperCase();
             if (tempProgram) {
                 showSection('yearSection');
             } else {
-                alert('Please enter a program name!');
+                showToast('Please enter a program name!');
             }
         }
 
@@ -133,6 +244,7 @@
                     })
                 }).then(() => {
             currentStudents = [];
+            showToast("Students saved successfully");
             resetToStudents();
             loadResults();   
                 });
@@ -191,73 +303,172 @@ document.getElementById("sortSelect").addEventListener("change", loadResults);
 });
 
 function loadResults() {
+    const searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
+
     fetch('/get_groups')
         .then(res => res.json())
         .then(data => {
             const container = document.getElementById('groupsList');
-            const searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
-            const sortValue = document.getElementById("sortSelect")?.value || "default";
 
             if (!data.groups || data.groups.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center; padding:40px; color:#777;">
+                    <div style="text-align:center;padding:40px;color:#777;">
                         <h3>No groups yet</h3>
                         <p>Start by adding students above.</p>
-                    </div>
-                `;
+                    </div>`;
                 document.getElementById('resultsDisplay').classList.remove('hidden');
                 return;
             }
 
-            // Filter + Sort
-            let filteredGroups = data.groups
-                .filter(g => 
-                    g.program.toLowerCase().includes(searchValue) ||
-                    g.year.toLowerCase().includes(searchValue)
-                )
+            // Filter groups
+            const filteredGroups = data.groups.filter(g =>
+                g.program.toLowerCase().includes(searchValue) ||
+                g.year.toLowerCase().includes(searchValue) ||
+                g.students.some(s => s.toLowerCase().includes(searchValue))
+            );
 
-            // Group by Program
+            // Group by program
             const groupedByProgram = {};
             filteredGroups.forEach(group => {
                 if (!groupedByProgram[group.program]) groupedByProgram[group.program] = [];
                 groupedByProgram[group.program].push(group);
             });
 
-            // Total Counters
-            let totalStudents = filteredGroups.reduce((sum, g) => sum + g.students.length, 0);
-            document.getElementById("statsText").innerText =
-                `Total Programs: ${Object.keys(groupedByProgram).length} | Total Students: ${totalStudents}`;
+            // Stats
+            const totalStudents = filteredGroups.reduce((sum, g) => sum + g.students.length, 0);
+            document.getElementById("totalPrograms").innerText =
+Object.keys(groupedByProgram).length;
 
-            
-            
-container.innerHTML = Object.keys(groupedByProgram).map(program => {
+document.getElementById("totalStudents").innerText =
+totalStudents;
 
-    const yearLevels = groupedByProgram[program].length;
-    const totalStudents = groupedByProgram[program]
-        .reduce((sum, g) => sum + g.students.length, 0);
+            // Year chart
+            const yearCounts = { "1st": 0, "2nd": 0, "3rd": 0, "4th": 0 };
+            filteredGroups.forEach(g => { yearCounts[g.year] += g.students.length });
+            const yearValues = Object.values(yearCounts);
+            const maxCount = Math.max(...yearValues);
+            const colors = yearValues.map(count => 
+    count === maxCount 
+        ? '#ff6b6b'  // highlight color for most populated year
+        : '#667eea'   // default color
+);
 
-    return `
-    <div class="program-card-modern">
-        <div class="program-card-left" onclick="openProgram('${program}')">
-            <h2>${program}</h2>
-            <p>${yearLevels} Year Levels</p>
-        </div>
+            const ctx = document.getElementById('yearChart').getContext('2d');
 
-        <div class="program-card-right">
-            <div class="badge students-badge">
-                ${totalStudents} Students
-            </div>
-            <button class="delete-btn" onclick="deleteGroup('${program}', '', this)">×</button>
-        </div>
-    </div>
-`;
+            // Destroy old chart safely
+            if (window.yearChart && typeof window.yearChart.destroy === 'function') {
+                window.yearChart.destroy();
+            }
 
-}).join('');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, "#667eea");
+            gradient.addColorStop(1, "#764ba2");
 
-            document.getElementById('resultsDisplay').classList.remove('hidden');
-        });
+            window.yearChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["1st Year", "2nd Year", "3rd Year", "4th Year"],
+        datasets: [{
+            data: Object.values(yearCounts),
+            backgroundColor: colors,
+            borderRadius: 12,
+            borderSkipped: false,
+            barThickness: 30
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const yearLabel = context.label;
+                        const count = context.raw;
+                        return `${yearLabel}: ${count} student${count !== 1 ? 's' : ''}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: { beginAtZero: true, ticks: { precision:0 } }
+        }
+    }
+});
+
+// Prepare program data
+const programLabels = Object.keys(groupedByProgram);
+const programCounts = programLabels.map(p => groupedByProgram[p].reduce((sum,g)=>sum+g.students.length,0));
+
+// Pie chart
+const ctxProg = document.getElementById('programChart').getContext('2d');
+
+if (window.programChart && typeof window.programChart.destroy === 'function') {
+    window.programChart.destroy();
 }
 
+window.programChart = new Chart(ctxProg, {
+    type: 'pie',
+    data: {
+        labels: programLabels,
+        datasets: [{
+            data: programCounts,
+            backgroundColor: programLabels.map((_,i)=>`hsl(${i*60 % 360}, 70%, 60%)`)
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context){
+                        const prog = context.label;
+                        const count = context.raw;
+                        const total = programCounts.reduce((a,b)=>a+b,0);
+                        const percent = ((count/total)*100).toFixed(1);
+                        return `${prog}: ${count} students (${percent}%)`;
+                    }
+                }
+            },
+            legend: {
+                position: 'bottom',
+                labels: { color: '#333' }
+            }
+        }
+    }
+});
+
+            // Program cards
+            const programsArray = Object.keys(groupedByProgram).map(program => {
+    const yearLevels = groupedByProgram[program].length;
+    const totalStudents = groupedByProgram[program].reduce((sum, g) => sum + g.students.length, 0);
+    return { program, yearLevels, totalStudents };
+});
+
+// Sort descending by total students
+programsArray.sort((a, b) => b.totalStudents - a.totalStudents);
+
+container.innerHTML = programsArray.map(p => `
+    <div class="program-card-modern">
+        <div class="program-card-left" onclick="openProgram('${encodeURIComponent(p.program)}')">
+            <h2>${p.program}</h2>
+            <p>${p.yearLevels} Year Levels</p>
+        </div>
+        <div class="program-card-right">
+            <div class="badge students-badge">${p.totalStudents} Students</div>
+            <button class="delete-btn" onclick="deleteGroup('${p.program}','',this)">X</button>
+        </div>
+    </div>
+`).join('');
+
+            document.getElementById('resultsDisplay').classList.remove('hidden');
+        })
+        .catch(err => {
+            console.error("Error loading groups:", err);
+            showToast("Failed to load groups. Check console for errors.");
+        });
+}               
 
 function openProgram(programName) {
     fetch('/get_groups')
@@ -265,48 +476,80 @@ function openProgram(programName) {
         .then(data => {
 
             const programGroups = data.groups.filter(g => g.program === programName);
-            const yearOrder = ["1st", "2nd", "3rd", "4th"];
-
             let yearMap = {};
-            yearOrder.forEach(y => yearMap[y] = []);
+programGroups.forEach(g => {
+    yearMap[g.year] = g.students;
+});
 
-            programGroups.forEach(g => {
-                yearMap[g.year] = g.students;
-            });
+// Convert to array to sort by student count descending
+const yearArray = Object.keys(yearMap).map(y => ({ year: y, students: yearMap[y] }));
+yearArray.sort((a, b) => b.students.length - a.students.length);
 
-            const container = document.getElementById('groupsList');
+const container = document.getElementById('groupsList');
 
-            container.innerHTML = `
-                <div class="program-view">
+container.innerHTML = `
+    <div class="program-view">
+        <div class="program-header">
+            <button class="back-btn" onclick="loadResults()">← Back</button>
+            <h2>${programName}</h2>
+        </div>
 
-                    <div class="program-header">
-                        <button class="back-btn" onclick="loadResults()">← Back</button>
-                        <h2>${programName}</h2>
-                    </div>
-
-                    <div class="year-grid">
-                        ${yearOrder.map(year => `
-                            <div class="year-card">
-                                <h3>${year} Year</h3>
-                                <ul>
-                                ${yearMap[year].map(s => `
+        <div class="year-grid">
+            ${yearArray.map(yObj => `
+                <div class="year-card">
+                    <h3>${yObj.year} Year (${yObj.students.length})</h3>
+                    <ul>
+                    ${yObj.students.map(s => `
 <li class="student-item">
     ${s}
-    <button class="student-delete"
-    onclick="removeStudent('${programName}','${year}','${s}')">
-    ×
-    </button>
+    <div>
+        <button class="student-edit"
+onclick="editStudent('${programName}','${yObj.year}','${s}')">EDIT</button>
+        <button class="student-delete"
+        onclick="removeStudent('${programName}','${yObj.year}','${s}')">X</button>
+    </div>
 </li>
 `).join('')}
-
-</ul>
-                            </div>
-                        `).join('')}
-                    </div>
-
+                    </ul>
                 </div>
-            `;
+            `).join('')}
+        </div>
+    </div>
+`;
         });
+}
+
+function editStudent(program, year, student){
+    const newName = prompt("Edit student name:", student);
+
+    if(!newName || newName.trim() === "") return;
+
+    fetch('/edit_student', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            program,
+            year,
+            old_name: student,
+            new_name: newName
+        })
+    }).then(()=>openProgram(program));
+}
+
+function showToast(msg){
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.innerText = msg;
+
+    document.body.appendChild(toast);
+
+    setTimeout(()=>{
+        toast.classList.add("show");
+    },10);
+
+    setTimeout(()=>{
+        toast.remove();
+    },3000);
 }
 
 function removeStudent(program, year, student) {
@@ -327,9 +570,10 @@ function removeStudent(program, year, student) {
 
         if (data.status === "removed") {
             loadResults(); 
+            showToast("Student removed");
             setTimeout(() => openProgram(program), 100);
         } else {
-            alert("Student not found.");
+            showToast("Student not found.");
         }
 
     });
