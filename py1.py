@@ -1,3 +1,8 @@
+#SAPETIN 1-35
+#LIG-ANG 37 - 74
+#LIPAO 74 - 116
+#CAPALES 118 - 156
+
 from flask import Flask, request, jsonify, render_template
 import json
 import os
